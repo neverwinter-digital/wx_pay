@@ -1,4 +1,4 @@
-require 'rest_client'
+require 'httparty'
 require 'json'
 require 'cgi'
 require 'securerandom'
@@ -15,15 +15,10 @@ module WxPay
     end
 
     def self.authenticate(authorization_code, options = {})
-      options = WxPay.extra_rest_client_options.merge(options)
+      options = WxPay.extra_httparty_options.merge(options)
       url = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=#{WxPay.appid}&secret=#{WxPay.appsecret}&code=#{authorization_code}&grant_type=authorization_code"
 
-      ::JSON.parse(RestClient::Request.execute(
-        {
-          method: :get,
-          url: url
-        }.merge(options)
-      ), quirks_mode: true)
+      ::JSON.parse(HTTParty.get(url, options).body, quirks_mode: true)
     end
 
     def self.get_sandbox_signkey
@@ -37,15 +32,10 @@ module WxPay
     end
 
     def self.authenticate_from_weapp(js_code, options = {})
-      options = WxPay.extra_rest_client_options.merge(options)
+      options = WxPay.extra_httparty_options.merge(options)
       url = "https://api.weixin.qq.com/sns/jscode2session?appid=#{WxPay.appid}&secret=#{WxPay.appsecret}&js_code=#{js_code}&grant_type=authorization_code"
 
-      ::JSON.parse(RestClient::Request.execute(
-        {
-          method: :get,
-          url: url
-        }.merge(options)
-      ), quirks_mode: true)
+      ::JSON.parse(HTTParty.get(url, options).body, quirks_mode: true)
     end
 
     INVOKE_UNIFIEDORDER_REQUIRED_FIELDS = [:body, :out_trade_no, :total_fee, :spbill_create_ip, :notify_url, :trade_type]
@@ -370,16 +360,13 @@ module WxPay
       end
 
       def invoke_remote(url, payload, options = {})
-        options = WxPay.extra_rest_client_options.merge(options)
-
-        RestClient::Request.execute(
+        options = WxPay.extra_httparty_options.merge(options)
+        HTTParty.post("#{get_gateway_url}#{url}",
           {
-            method: :post,
-            url: "#{get_gateway_url}#{url}",
-            payload: payload,
+            body: payload,
             headers: { content_type: 'application/xml' }
           }.merge(options)
-        )
+        ).body
       end
     end
   end

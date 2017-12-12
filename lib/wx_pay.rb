@@ -5,12 +5,12 @@ require 'wx_pay/version'
 require 'openssl'
 
 module WxPay
-  @extra_rest_client_options = {}
+  @extra_httparty_options = {}
   @debug_mode = true
   @sandbox_mode = false
 
   class<< self
-    attr_accessor :appid, :mch_id, :key, :appsecret, :extra_rest_client_options, :debug_mode
+    attr_accessor :appid, :mch_id, :key, :appsecret, :extra_httparty_options, :debug_mode
     attr_accessor :sandbox_mode, :sandbox_key, :sandbox_mch_id
     attr_reader :apiclient_cert, :apiclient_key
 
